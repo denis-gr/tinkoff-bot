@@ -20,12 +20,13 @@ class Model:
             "cotent": question,
         })
 
-        async with aiohttp.ClientSession() as session:
+        """async with aiohttp.ClientSession() as session:
             response = await session.post(
                 url=self.model_server_url + "complete/",
                 json=json.dumps(question)
             )
-            answer = (await response.json(encoding='UTF-8'))["text"]
+            answer = (await response.json(encoding='UTF-8'))["text"]"""
+        answer = question
     
         await self.db_collection.messages.insert_one({
             "user_id": user_id,
@@ -64,9 +65,9 @@ class Model:
                    for rep in reports } # Учтем послений отзыв пользователя
 
         metrics["Share of positive reviews"] = len(
-            [1 for rep in reports if rep]) / len(reports)
+            [1 for rep in reports.values() if rep]) / len(reports)
 
         metrics["Share of negative reviews"] = len(
-            [1 for rep in reports if not rep]) / len(reports)
+            [1 for rep in reports.values() if not rep]) / len(reports)
 
         return metrics
