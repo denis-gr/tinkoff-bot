@@ -30,8 +30,8 @@ class Model:
             "content": question,
         })
 
-        mes = self.db_collection.messages.find(
-            { "user_id": user_id, "mes_is": mes_is }).to_list(None)
+        mes = await self.db_collection.messages.find(
+            { "user_id": user_id }).to_list(None)
         prompt = Conversation(mes).get_prompt()
 
         async with aiohttp.ClientSession() as session:
@@ -72,7 +72,7 @@ class Model:
         reports = await self.db_collection.reports.find().to_list(None)
 
         metrics["Number of messages from users"] = len(
-            [1 for mes in messages if mes["type"] == "user"])
+            [1 for mes in messages if mes["role"] == "user"])
         
         reports = { f"{rep['user_id']}/{rep['mes_is']}": rep['is_like']
                    for rep in reports } # Учтем послений отзыв пользователя

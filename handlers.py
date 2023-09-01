@@ -61,20 +61,20 @@ async def game_get_help(message, state, model):
 
 @dp.message(Command("clear_context"))
 @flags.chat_action("typing")
-async def cmd_metrics(message: types.Message, bot, model):
+async def cmd_clear_context(message: types.Message, model):
     await model.clear_context(message.from_user.id, message.message_id)
 
 
 @dp.message(Command("get_metrics"))
 @flags.chat_action("typing")
-async def cmd_metrics(message: types.Message, bot, model):
+async def cmd_metrics(message: types.Message, model):
     metrics = await model.get_metrics()
     await message.answer("\n".join(f"{k}: {v}" for k, v in metrics.items()))
 
 
 @dp.message()
 @flags.chat_action("typing")
-async def cmd_start(message: types.Message, bot, model):
+async def cmd_start(message: types.Message, model):
     try:
         answer = await model.ask(message.from_user.id, message.message_id,
             message.text)
