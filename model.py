@@ -3,6 +3,8 @@ import json
 import aiohttp
 from motor.motor_asyncio import AsyncIOMotorClient
 
+from utils import Conversation
+
 class Model:
     def __init__(self, mongo_db_url, mongo_db_name, model_server_url):
         self.model_server_url = model_server_url
@@ -20,13 +22,17 @@ class Model:
             "cotent": question,
         })
 
-        """async with aiohttp.ClientSession() as session:
+        mes = self.db_collection.messages.find(
+            { "user_id": user_id, "mes_is": mes_is }).to_list(None)
+        mes = map(lambda m: { "role": m["type"], "cotent": m["cotent"] }, mes)
+        prompt = Conversation(mes).get_prompt()
+
+        async with aiohttp.ClientSession() as session:
             response = await session.post(
                 url=self.model_server_url + "complete/",
-                json=json.dumps(question)
+                json=json.dumps(prompt)
             )
-            answer = (await response.json(encoding='UTF-8'))["text"]"""
-        answer = question
+            answer = (await response.json(encoding='UTF-8'))["text"]
     
         await self.db_collection.messages.insert_one({
             "user_id": user_id,
