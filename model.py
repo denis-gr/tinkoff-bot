@@ -14,17 +14,24 @@ class Model:
         self.db_collection.reports.create_index([("user_id", 1)])
         self.db_collection.reports.create_index([("mes_is", 1)])
 
+    async def clear_context(self, user_id, mes_is):
+        await self.db_collection.messages.insert_one({
+            "user_id": user_id,
+            "mes_is": mes_is,
+            "role": "clear",
+            "content": "",
+        })
+
     async def ask(self, user_id, mes_is, question):
         await self.db_collection.messages.insert_one({
             "user_id": user_id,
             "mes_is": mes_is,
-            "type": "user",
-            "cotent": question,
+            "role": "user",
+            "content": question,
         })
 
         mes = self.db_collection.messages.find(
             { "user_id": user_id, "mes_is": mes_is }).to_list(None)
-        mes = map(lambda m: { "role": m["type"], "cotent": m["cotent"] }, mes)
         prompt = Conversation(mes).get_prompt()
 
         async with aiohttp.ClientSession() as session:
@@ -37,8 +44,8 @@ class Model:
         await self.db_collection.messages.insert_one({
             "user_id": user_id,
             "mes_is": mes_is,
-            "type": "bot",
-            "cotent": answer,
+            "role": "bot",
+            "content": answer,
         })
         return answer
     

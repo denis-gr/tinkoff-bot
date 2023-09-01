@@ -12,23 +12,20 @@ class Conversation:
     ):
         self.message_template = message_template
         self.bot_start_text = bot_start_text
-        self.messages = [{
-            "role": "system",
-            "content": system_prompt
-        }] + messages[:]
+        self.messages = [{ "role": "system", "content": system_prompt }]
+        for m in messages:
+            self.add_message(**m)
 
-    def add_message(self, message, role="user"):
-        if role not in ["user", "system", "bot"]:
+    def add_message(self, content="", role="user"):
+        if role not in ["user", "system", "bot", "clear"]:
             raise ValueError("Unknown role: " + role)
-        self.messages.append({ "role": role, "content": message })
+        elif role == "system":
+            self.messages = [{ "role": "system", "content": content }]
+        if role != "clear":
+            self.messages = [m for m in self.messages if m["role"] == "system"]
+            
 
     def get_prompt(self):
         final_text = map(lambda m: self.message_template.format(**m), self.messages)
         final_text = "".join(final_text) + self.bot_start_text
         return final_text.strip()
-
-    def expand(self, messages, clear=True):
-        if clear or (messages[0]["role"] == "system"):
-            self.messages = []
-        for message in messages:
-            self.add_message(**message)
