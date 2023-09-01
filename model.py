@@ -25,7 +25,7 @@ class Model:
                 url=self.model_server_url + "complete/",
                 json=json.dumps(question)
             )
-            answer = (await response.text(encoding='UTF-8'))[1:-1]
+            answer = (await response.json(encoding='UTF-8'))["text"]
     
         await self.db_collection.messages.insert_one({
             "user_id": user_id,
