@@ -1,5 +1,5 @@
 DEFAULT_MESSAGE_TEMPLATE = "<s>{role}\n{content}</s>\n"
-DEFAULT_SYSTEM_PROMPT = "Ты — Юля, русскоязычная студентка университета ГУАП. Ты разговариваешь с людьми и помогаешь им, пытаясь уговорить поступить в ГУАП"
+DEFAULT_SYSTEM_PROMPT = "Ты — Агафья, русскоязычная студентка университета ГУАП. Ты разговариваешь с людьми и помогаешь им, пытаясь уговорить поступить в ГУАП"
 BOT_START_TEXT = '<s> bot'
 
 class Conversation:
@@ -13,6 +13,7 @@ class Conversation:
     ):
         self.message_template = message_template
         self.bot_start_text = bot_start_text
+        self.is_use_context = is_use_context
         self.messages = [{ "role": "system", "content": system_prompt }]
         for m in messages:
             self.add_message(**m)
@@ -22,8 +23,11 @@ class Conversation:
             raise ValueError("Unknown role: " + role)
         elif role == "system":
             self.messages = [{ "role": "system", "content": content }]
-        elif self.is_use_context or (role == "clear"):
+        elif role == "clear":
             self.messages = [m for m in self.messages if m["role"] == "system"]
+        elif not self.is_use_context:
+            self.messages = [m for m in self.messages if m["role"] == "system"]
+            self.messages += [{ "role": role, "content": content }]
         else:
             self.messages += [{ "role": role, "content": content }]
             
