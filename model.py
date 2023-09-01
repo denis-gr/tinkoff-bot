@@ -1,3 +1,5 @@
+import json
+
 import aiohttp
 from motor.motor_asyncio import AsyncIOMotorClient
 
@@ -21,7 +23,7 @@ class Model:
         async with aiohttp.ClientSession() as session:
             response = await session.post(
                 url=self.model_server_url + "complete/",
-                data=question
+                json=json.dumps(question)
             )
             answer = (await response.text(encoding='UTF-8'))[1:-1]
     
